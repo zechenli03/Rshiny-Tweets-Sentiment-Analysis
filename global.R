@@ -26,11 +26,26 @@ PrepareTwitter<-function()
   EnsurePackage("shinythemes")
   EnsurePackage("tm")
   EnsurePackage("qdapRegex")
+  EnsurePackage("rjson")
+  EnsurePackage("jsonlite")
+  EnsurePackage("leaflet")
+  EnsurePackage("gganimate")
+  EnsurePackage("lubridate")
+  EnsurePackage("maps")
+  EnsurePackage("ggthemes")
+  EnsurePackage("ggdark")
+  EnsurePackage("plotly")
+  EnsurePackage("tibble")
+  EnsurePackage("lubridate")
+  EnsurePackage("gapminder")
+  EnsurePackage("gifski")
 }
 
-devtools::install_github("lchiffon/wordcloud2")
+#devtools::install_github("lchiffon/wordcloud2")
+#devtools::install_github("dgrtwo/gganimate")
 library(dplyr)
 library(tm)
+library(ggdark)
 library(rtweet) 
 library(httpuv)
 library(slam)
@@ -40,7 +55,18 @@ library(shiny)
 library(DT)
 library(shinythemes)
 library(wordcloud2)
-
+library(rjson)
+library(jsonlite)
+library(leaflet)
+library(gganimate)
+library(lubridate)
+library(maps)
+library(ggthemes)
+library(plotly)
+library(tibble)
+library(lubridate)
+library(gapminder)
+library(gifski)
 
 #Define key and secret 
 consumer_key <- '3HtfVZ3HIv3oGRkbOwREJ4d5Y'
@@ -51,6 +77,7 @@ Access_tokensecret <- 'CkF4TqAkXrZS71zrikSKTHCxs6Aph73n67zneFwf5JsYI'
 #Create a token to connect to Twitter's API using your key and secret
 token <- create_token(app="RyanDV", consumer_key, consumer_secret, 
                       Access_token, Access_tokensecret,set_renv = TRUE)
+
 
 # Clean the tweets
 TweetClean<-function(tweets)
@@ -86,3 +113,42 @@ wordclouds2 <- function(tweets_clean)
   return (textCorpus)
 }
 
+toptrends <- function(location)
+{
+  trend <- get_trends(location)
+  trends <- trend %>%
+    arrange(desc(tweet_volume)) %>%
+    mutate(id = row_number())%>%
+    select("Id" = id, "Trend" = trend, "Tweet Volume" = tweet_volume)
+  return (trends[1:10,])
+}
+
+# create new df with just the tweet texts & usernames
+world_map_plot <- function(tweet_geo_data)
+{
+  # plot points on top of a leaflet basemap
+  
+  site_locations_base <- leaflet(tweet_geo_data) %>%
+    addProviderTiles(providers$Stamen.Toner) %>%
+    addCircleMarkers(lng = ~long, lat = ~lat, popup = ~tweet_text,
+                     radius = 4, stroke = FALSE,color = "red",
+                     fillOpacity = 0.6)
+  
+  return (site_locations_base)
+}
+
+animate_map_plot <- function(tweet_geo_data){
+  world_basemap <- ggplot() +
+    borders("world", colour = "gray85", fill = "gray80") +
+    theme_map() + dark_theme_gray()
+  
+  grouped_tweet_map <- world_basemap + geom_point(data = tweet_geo_data,
+                                                  aes(long, lat),
+                                                  color = "purple", alpha = .5) +
+    transition_manual(date_time)+
+    coord_fixed()
+  
+  animate(animate_map_plot, duration = 5, fps = 1, width = 1280, height = 1024, renderer = gifski_renderer())
+  anim_save("animate_map_plot.gif")
+  
+}

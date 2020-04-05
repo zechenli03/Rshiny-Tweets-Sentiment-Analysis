@@ -2,7 +2,6 @@
 # author: "Zechen Li"
 
 server <- function(input, output) {
-  
   ## Wordcloud
   #Adding '#' before the hashtag
   hashtag <- reactive({
@@ -32,6 +31,13 @@ server <- function(input, output) {
                   lang="en")
   })
   
+  tweets_map <- reactive({
+    search_tweets(hashtag(), 
+                  input$number, 
+                  include_rts = FALSE)
+  })
+  
+ 
   #Unlist hashtags
   hashtags_list <- reactive({
     tweets()$hashtags %>%
@@ -60,8 +66,7 @@ server <- function(input, output) {
   output$wordcloud1 <- renderWordcloud2({
     hashtags_df_sort() %>%
       filter(hashtags_df_sort()$tags != input$hashtag) %>%
-      wordcloud2(size=1.4, 
-                 color='random-light', 
+      wordcloud2(color='random-light', 
                  backgroundColor="transparent",
                  fontWeight = "bold")
   })
@@ -79,12 +84,48 @@ server <- function(input, output) {
   # Create the wordcloud2 from the hashtag
   output$wordcloud2 <- renderWordcloud2({
     wordcloud2(textCorpus(),
-               size=1.4, 
                color='random-light', 
                backgroundColor="transparent",
                fontWeight = "bold")
   })
   
+  trend_table <- reactive({ 
+    req(input$location)
+    trend_table <-
+      toptrends(input$location) })
   
+  output$trendtable <- 
+    renderTable({trend_table()})
   
+  tweet_geo_data <- reactive({
+    geo_data <- lat_lng(tweets_map())
+    geo_data <- geo_data %>% rename(long = lng)
+    tweet_geo_data <- data.frame(date_time = geo_data$created_at,
+                                 username = geo_data$screen_name,
+                                 tweet_text = geo_data$text,
+                                 lat = geo_data$lat,
+                                 long = geo_data$long)
+    tweet_geo_data <- tweet_geo_data %>%
+      na.omit()
+  })
+  
+  output$map <- 
+    renderLeaflet({world_map_plot(tweet_geo_data())})
+  
+  output$title <- renderText({
+    x <- input$hashtag
+    y <- nrow(tweet_geo_data())
+    paste("Geographical Distribution of the Latest", y, "Tweets Containing Hashtag #", x, ":")
+  })
+  
+  output$animate_map <- renderImage({
+    animate_map_plot(tweet_geo_data())
+  })
+    
 }
+  
+
+
+
+
+

@@ -137,18 +137,38 @@ world_map_plot <- function(tweet_geo_data)
   return (site_locations_base)
 }
 
-animate_map_plot <- function(tweet_geo_data){
-  world_basemap <- ggplot() +
-    borders("world", colour = "gray85", fill = "gray80") +
-    theme_map() + dark_theme_gray()
+animate_plot <- function(tweet_geo_data){
   
-  grouped_tweet_map <- world_basemap + geom_point(data = tweet_geo_data,
-                                                  aes(long, lat),
-                                                  color = "purple", alpha = .5) +
-    transition_manual(date_time)+
-    coord_fixed()
+  tweet_geo_data$date_time <-format(tweet_geo_data$date_time, tz="America/Los_Angeles",usetz=TRUE)
+  tweet_geo_data$date_time <- as.POSIXct(tweet_geo_data$date_time)
   
-  animate(animate_map_plot, duration = 5, fps = 1, width = 1280, height = 1024, renderer = gifski_renderer())
-  anim_save("animate_map_plot.gif")
+  world <- ggplot() +
+    borders("world", colour = "gray35", fill = "gray80") +
+    theme_map() 
   
+  map <- world +
+    geom_point(aes(x = long, 
+                   y = lat, 
+                   size = followers_count),
+               data = tweet_geo_data, 
+               colour = '#CC0000', alpha = .6) +
+    scale_size(range = c(1,8),
+               breaks = c(100, 500, 1000, 3000, 6000)) +
+    labs(size = 'Followers',
+         title = 'Time: {closest_state} PDT') +
+    dark_theme_gray() +
+    theme(
+      legend.background = element_blank(),
+      legend.position = c(0.05, 0.23),
+      legend.key = element_blank(),
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank(),
+      axis.text.x = element_blank(),
+      axis.text.y = element_blank(),
+      axis.ticks.x = element_blank(),
+      axis.ticks.y = element_blank()
+    ) +
+    transition_states(date_time, 0, 1, wrap = F) +
+    shadow_mark()
+  return(map)
 }

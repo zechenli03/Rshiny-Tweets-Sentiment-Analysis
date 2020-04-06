@@ -37,6 +37,12 @@ server <- function(input, output) {
                   include_rts = FALSE)
   })
   
+  tweets_map2 <- reactive({
+    search_tweets(hashtag(), 
+                  input$number, 
+                  include_rts = FALSE)
+  })
+  
  
   #Unlist hashtags
   hashtags_list <- reactive({
@@ -100,12 +106,24 @@ server <- function(input, output) {
   tweet_geo_data <- reactive({
     geo_data <- lat_lng(tweets_map())
     geo_data <- geo_data %>% rename(long = lng)
-    tweet_geo_data <- data.frame(date_time = geo_data$created_at,
-                                 username = geo_data$screen_name,
-                                 tweet_text = geo_data$text,
-                                 lat = geo_data$lat,
-                                 long = geo_data$long)
-    tweet_geo_data <- tweet_geo_data %>%
+    tweet_geo_data <- geo_data %>% 
+      select(date_time = created_at,
+             followers_count, 
+             long, 
+             lat,
+             tweet_text = text) %>%
+      na.omit()
+  })
+  
+  tweet_geo_data2 <- reactive({
+    geo_data <- lat_lng(tweets_map2())
+    geo_data <- geo_data %>% rename(long = lng)
+    tweet_geo_data <- geo_data %>% 
+      select(date_time = created_at,
+             followers_count, 
+             long, 
+             lat,
+             tweet_text = text) %>%
       na.omit()
   })
   
@@ -115,12 +133,33 @@ server <- function(input, output) {
   output$title <- renderText({
     x <- input$hashtag
     y <- nrow(tweet_geo_data())
-    paste("Geographical Distribution of the Latest", y, "Tweets Containing Hashtag #", x, ":")
+    z <- input$number
+    paste("Geographical Distribution of the Latest", z, "Tweets (",y,"Tweets with a Location) Containing Hashtag #", x, ":")
+  })
+  
+  output$title2 <- renderText({
+    x <- input$hashtag
+    y <- nrow(tweet_geo_data2())
+    z <- input$number
+    paste("Anamited Geographical Distribution of the Latest", z, "Tweets (",y,"Tweets with a Location) Containing Hashtag #", x, ":")
+  })
+  
+  animated <- reactive({
+    animate_plot(tweet_geo_data2())
+  })
+  
+  animate_map_plot <- reactive({
+    p <- animate(animated(),width = 935, height = 600, end_pause = 10, fps=5)
+    anim_save("animate.gif", p)
+    
+    list(src = "animate.gif",
+         contentType = 'image/gif'
+    )
   })
   
   output$animate_map <- renderImage({
-    animate_map_plot(tweet_geo_data())
-  })
+    animate_map_plot()
+  }, deleteFile = TRUE)
     
 }
   

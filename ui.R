@@ -81,7 +81,13 @@ ui <- fluidPage(
       tabPanel('World Map', br(), textOutput("title"), br(), 
                leafletOutput(outputId = "map", height = "600px")),
       
-      tabPanel('Animated Map',imageOutput(outputId='animate_map'))
+      tabPanel('Animated Map', br(), textOutput("title2"), br(), 
+               "(Generation often takes 1~3 minutes)", br(), 
+               fluidRow(
+                 column(12, align="center",
+                        imageOutput(outputId='animate_map')
+                 )
+               ))
     )
   )
   

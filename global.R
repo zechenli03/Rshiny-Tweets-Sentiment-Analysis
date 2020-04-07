@@ -40,6 +40,7 @@ PrepareTwitter<-function()
   EnsurePackage("gapminder")
   EnsurePackage("gifski")
   EnsurePackage("plotrix")
+  EnsurePackage("reshape")
 }
 
 #devtools::install_github("lchiffon/wordcloud2")
@@ -69,6 +70,7 @@ library(lubridate)
 library(gapminder)
 library(gifski)
 library(plotrix)
+library(reshape)
 
 #Define key and secret 
 consumer_key <- '3HtfVZ3HIv3oGRkbOwREJ4d5Y'

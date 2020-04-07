@@ -102,7 +102,7 @@ ui <- fluidPage(
                wordcloud2Output(outputId = "wordcloud2", height = "600px")
       ),
       
-      tabPanel("Tweets",br(),
+      tabPanel("Analyzed Tweets",br(),
                "The table describes the sentiment (positive, negative, or neutral) of the tweets associated with the searched Hashtag 
                by showing a score for each type of sentiment.",br(),br(),
                DT::dataTableOutput("tweetstable"),br(),br()),

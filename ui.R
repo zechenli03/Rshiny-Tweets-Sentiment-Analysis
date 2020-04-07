@@ -5,7 +5,7 @@
 
 ui <- fluidPage(
   theme = shinythemes::shinytheme("cyborg"),
-  tags$head(tags$style("div.dataTables_scrollHead span {color: black;}")),
+
   
   titlePanel(fluidRow(
     column(width = 3, tags$img(src = "logo.svg",height='120')),
@@ -34,6 +34,30 @@ ui <- fluidPage(
   ),
   
   mainPanel(
+    tags$style(HTML(".dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_processing, .dataTables_wrapper .dataTables_paginate {
+                    color: #b6b6b6;
+                    } 
+                    .dataTables_length select {
+                           color: #b6b6b6;
+                           background-color: #313131
+                    }
+                    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+                    background: black;
+                    color: white!important;
+                    border-radius: 4px;
+                    border: 1px solid #828282;
+                    }
+                    .dataTables_wrapper .dataTables_paginate .paginate_button:active {
+                    background: black;
+                    color: black!important;
+                    }
+                    
+                    .dataTables_wrapper .dataTables_paginate .paginate_button {
+                    background: black;
+                    color: white!important;
+                    }
+                    ")),
+    
     tabsetPanel(
       tabPanel("Top Trending Topics Today in U.S",
                br(),
@@ -76,6 +100,22 @@ ui <- fluidPage(
                "Most used words from the tweets based on a given hashtag (English):",
                br(),br(),
                wordcloud2Output(outputId = "wordcloud2", height = "600px")
+      ),
+      
+      tabPanel("Tweets",br(),
+               "The table describes the sentiment (positive, negative, or neutral) of the tweets associated with the searched Hashtag 
+               by showing a score for each type of sentiment.",br(),br(),
+               DT::dataTableOutput("tweetstable"),br(),br()),
+      
+      tabPanel("Sentiment Plots",br(),textOutput("title3"),br(),
+               plotOutput("histPos"), br(),br(),
+               plotOutput("histNeg"), br(),br(),
+               plotOutput("histScore"),br(),br(),
+               fluidRow(
+                 column(12,align = "center",
+                        plotOutput(outputId='piechart', width = "410px")
+                 )
+               )
       ),
       
       tabPanel('World Map', br(), textOutput("title"), br(), 

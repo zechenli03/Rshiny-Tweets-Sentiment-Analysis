@@ -39,6 +39,7 @@ PrepareTwitter<-function()
   EnsurePackage("lubridate")
   EnsurePackage("gapminder")
   EnsurePackage("gifski")
+  EnsurePackage("plotrix")
 }
 
 #devtools::install_github("lchiffon/wordcloud2")
@@ -67,6 +68,7 @@ library(tibble)
 library(lubridate)
 library(gapminder)
 library(gifski)
+library(plotrix)
 
 #Define key and secret 
 consumer_key <- '3HtfVZ3HIv3oGRkbOwREJ4d5Y'
@@ -172,3 +174,120 @@ animate_plot <- function(tweet_geo_data){
     shadow_mark()
   return(map)
 }
+
+TweetFrame<-function(tweets1)
+{
+  #removal of emoticons
+  tweets1$text <- sapply(tweets1$text,function(row) iconv(row, "latin1", "ASCII", sub="")) #If you wish to print emoticons just comment this line
+  tweets1$text = gsub("(f|ht)tp(s?)://(.*)[.][a-z]+", "", tweets1$text)
+  return (tweets1$text)
+}
+
+#"positive_words.txt" file
+pos.words = scan('www/positive_words.txt', what='character', comment.char=';') 
+#"negative_words.txt" file
+neg.words = scan('www/negative_words.txt', what='character', comment.char=';')
+
+wordDatabase<-function()
+{
+  pos.words<<-c(pos.words)
+  neg.words<<-c(neg.words)
+}
+
+score.sentiment <- function(sentences, pos.words, neg.words, .progress='none')
+{
+  list=lapply(sentences, function(sentence, pos.words, neg.words)
+  {
+    sentence = gsub('[[:punct:]]',' ',sentence)
+    sentence = gsub('[[:cntrl:]]','',sentence)
+    sentence = gsub('\\d+','',sentence)
+    sentence = gsub('\n','',sentence)
+    
+    sentence = tolower(sentence)
+    word.list = str_split(sentence, '\\s+')
+    words = unlist(word.list)
+    pos.matches = match(words, pos.words)
+    neg.matches = match(words, neg.words)
+    pos.matches = !is.na(pos.matches)
+    neg.matches = !is.na(neg.matches)
+    pp=sum(pos.matches)
+    nn = sum(neg.matches)
+    score = sum(pos.matches) - sum(neg.matches)
+    list1=c(score, pp, nn)
+    return (list1)
+  }, pos.words, neg.words)
+  score_new=lapply(list, `[[`, 1)
+  pp1=score=lapply(list, `[[`, 2)
+  nn1=score=lapply(list, `[[`, 3)
+  
+  scores.df = data.frame(score=score_new, text=sentences)
+  positive.df = data.frame(Positive=pp1, text=sentences)
+  negative.df = data.frame(Negative=nn1, text=sentences)
+  
+  list_df=list(scores.df, positive.df, negative.df)
+  return(list_df)
+}
+
+
+sentimentAnalyser<-function(result)
+{
+  #Creating a copy of result data frame
+  test1=result[[1]]
+  test2=result[[2]]
+  test3=result[[3]]
+  
+  #Creating three different data frames for Score, Positive and Negative
+  #Removing text column from data frame
+  test1$text=NULL
+  test2$text=NULL
+  test3$text=NULL
+  #Storing the first row(Containing the sentiment scores) in variable q
+  q1=test1[1,]
+  q2=test2[1,]
+  q3=test3[1,]
+  qq1=melt(q1, var='Score')
+  qq2=melt(q2, var='Positive')
+  qq3=melt(q3, var='Negative') 
+  qq1['Score'] = NULL
+  qq2['Positive'] = NULL
+  qq3['Negative'] = NULL
+  #Creating data frame
+  table1 = data.frame(Text=result[[1]]$text, Score=qq1)
+  table2 = data.frame(Text=result[[2]]$text, Score=qq2)
+  table3 = data.frame(Text=result[[3]]$text, Score=qq3)
+  
+  #Merging three data frames into one
+  table_final=data.frame(Text=table1$Text, Positive=table2$value, Negative=table3$value, Score=table1$value)
+  
+  return(table_final)
+}
+
+percentage<-function(table_final)
+{
+  #Positive Percentage
+  
+  #Renaming
+  posSc=table_final$Positive
+  negSc=table_final$Negative
+  
+  #Adding column
+  table_final$PosPercent = posSc/ (posSc+negSc)
+  
+  #Replacing Nan with zero
+  pp = table_final$PosPercent
+  pp[is.nan(pp)] <- 0
+  table_final$PosPercent = pp*100
+  
+  #Negative Percentage
+  
+  #Adding column
+  table_final$NegPercent = negSc/ (posSc+negSc)
+  
+  #Replacing Nan with zero
+  nn = table_final$NegPercent
+  nn[is.nan(nn)] <- 0
+  table_final$NegPercent = nn*100
+  return(table_final)
+}
+
+wordDatabase()

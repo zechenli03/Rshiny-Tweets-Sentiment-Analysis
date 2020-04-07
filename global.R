@@ -278,7 +278,7 @@ percentage<-function(table_final)
   #Replacing Nan with zero
   pp = table_final$PosPercent
   pp[is.nan(pp)] <- 0
-  table_final$PosPercent = pp*100
+  table_final$PosPercent = round(pp*100, 2)
   
   #Negative Percentage
   
@@ -288,7 +288,7 @@ percentage<-function(table_final)
   #Replacing Nan with zero
   nn = table_final$NegPercent
   nn[is.nan(nn)] <- 0
-  table_final$NegPercent = nn*100
+  table_final$NegPercent = round(nn*100, 2)
   return(table_final)
 }
 

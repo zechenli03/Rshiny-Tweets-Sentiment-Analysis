@@ -59,7 +59,7 @@ ui <- fluidPage(
                     ")),
     
     tabsetPanel(
-      tabPanel("Top Trending Topics Today in U.S",
+      tabPanel("Trending Topics Today in U.S",
                br(),
                fluidRow(
                  column(width = 7),

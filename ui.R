@@ -26,7 +26,7 @@ ui <- fluidPage(
                 label="Number of recent tweets to use for analysis:",
                 value=500,
                 min=100,
-                max=5000,
+                max=3000,
                 width = '90%'), 
     br(),
     submitButton(text="Visualize")

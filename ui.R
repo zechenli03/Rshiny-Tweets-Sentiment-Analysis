@@ -107,7 +107,7 @@ ui <- fluidPage(
                by showing a score for each type of sentiment.",br(),br(),
                DT::dataTableOutput("tweetstable"),br(),br()),
       
-      tabPanel("Sentiment Plots",br(),textOutput("title3"),br(),
+      tabPanel("Sentiment Plots",br(),br(),
                plotOutput("histPos"), br(),br(),
                plotOutput("histNeg"), br(),br(),
                plotOutput("histScore"),br(),br(),

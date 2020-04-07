@@ -99,7 +99,7 @@ server <- function(input, output) {
   
   tweet_geo_data <- reactive({
     geo_data <- lat_lng(tweets_map())
-    geo_data <- geo_data %>% rename(long = lng)
+    geo_data <- geo_data %>% dplyr::rename(long = lng)
     tweet_geo_data <- geo_data %>% 
       select(date_time = created_at,
              followers_count, 

@@ -27,7 +27,8 @@ ui <- fluidPage(
                 value=500,
                 min=100,
                 max=3000,
-                width = '90%'), 
+                width = '90%',
+                step = 100), 
     br(),
     submitButton(text="Visualize")
     

@@ -24,7 +24,7 @@ ui <- fluidPage(
     br(),
     sliderInput(inputId='number',
                 label="Number of recent tweets to use for analysis:",
-                value=500,
+                value=2000,
                 min=100,
                 max=3000,
                 width = '90%',

@@ -73,10 +73,10 @@ library(plotrix)
 library(reshape)
 
 #Define key and secret 
-consumer_key <- '3HtfVZ3HIv3oGRkbOwREJ4d5Y'
-consumer_secret <- 'llNEksiO3S1aCzZAtBxeXnTBi2yegpQ92gLmw9zJWAqpog7FPo'
-Access_token <-'739303876055072768-JMXifS6L1nMUWVDaf7N1sdsROVmlcf5'
-Access_tokensecret <- 'CkF4TqAkXrZS71zrikSKTHCxs6Aph73n67zneFwf5JsYI'
+consumer_key <- 'xxx'
+consumer_secret <- 'xxx'
+Access_token <-'xxx'
+Access_tokensecret <- 'xxx'
 
 #Create a token to connect to Twitter's API using your key and secret
 token <- create_token(app="RyanDV", consumer_key, consumer_secret, 

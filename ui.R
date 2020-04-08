@@ -92,7 +92,7 @@ ui <- fluidPage(
                                                  "Korean" = "ko"), selected = "All", selectize = FALSE)),
                  column(width = 1, br(), submitButton(text="Show"))),
                br(),
-               "Most frequent hashtags fromt the tweet hashtag list based on a given hashtag:",
+               "Most frequent hashtags from the tweet hashtag list based on a given hashtag:",
                br(), br(),
                wordcloud2Output(outputId = "wordcloud1", height = "600px")
                ),
